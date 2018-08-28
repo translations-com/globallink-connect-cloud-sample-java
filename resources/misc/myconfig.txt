@@ -1,0 +1,18 @@
+	private static String API_URL = "https://connect-dev.translations.com/api/v2";
+	private static String API_USERNAME = "msanz";
+	private static String API_PASSWORD = "password1!";
+	private static String API_CLIENT_SECRET = "e1b070f5279a56058a1ceee77b1e8b86";
+	private static String API_USER_AGENT = "GCC Java Sample test";
+
+
+	private static String API_URL = "https://connect-dev.translations.com/api/v2";
+	private static String API_USERNAME = "anaik";
+	private static String API_PASSWORD = "Global!nk";
+	private static String API_CONNECTOR_ID = "1522325545304.0";
+	private static String API_CLIENT_SECRET = "0eda21fe211c307e6853f3c332f7b5af";
+
+https://qa-connect8.translations.com/PD
+a_client10
+password1!
+
+
