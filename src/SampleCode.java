@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -9,38 +10,33 @@ import org.gs4tr.gcc.restclient.GCConfig;
 import org.gs4tr.gcc.restclient.GCExchange;
 import org.gs4tr.gcc.restclient.model.GCTask;
 import org.gs4tr.gcc.restclient.model.Locale;
-import org.gs4tr.gcc.restclient.request.JobSubmitFilesRequest;
-import org.gs4tr.gcc.restclient.request.TaskRequest;
+import org.gs4tr.gcc.restclient.model.TaskStatus;
+import org.gs4tr.gcc.restclient.operation.Tasks.TasksResponseData;
+import org.gs4tr.gcc.restclient.request.SubmissionSubmitRequest;
+import org.gs4tr.gcc.restclient.request.TaskListRequest;
 import org.gs4tr.gcc.restclient.request.UploadFileRequest;
-import org.gs4tr.gcc.restclient.response.TaskListResponse;
 
-/**
- * @Author: Mariano Sanz - msanz@translations.com
- * 
- * @Description: This code is meant as a POC or sample test to validate
- *               connectivity between your system and GCC REST
- * 
- * @Instructions: Set bellow the REST API's URL, USERNAME, PASSWORD, CLIENT_SECRET
- *                and USER AGENT
- */
 
 public class SampleCode {
-
-	private static String API_URL = "https://connect-dev.translations.com/api/v2";
-	private static String API_USERNAME = "a-username";
-	private static String API_PASSWORD = "a-password";
-	private static String API_CONNECTOR_ID = "1522325545304.0";
-	private static String API_CLIENT_SECRET = "a-client-secret";
-	private static String API_USER_AGENT = "a-user-agent";
+	
+	private static String API_URL = "domain/api/v2";
+	private static String API_USERNAME = "username";
+	private static String API_PASSWORD = "password";
+	private static String API_CONNECTOR_KEY = "connector-key";
+	private static String API_USER_AGENT = "user-agent";
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println("Preparing the GCC quantum tunnel...");
 
 		// ** Instantiate the configuration
-		GCConfig gcconfig = new GCConfig(API_URL, API_USERNAME, API_PASSWORD, API_CLIENT_SECRET, API_USER_AGENT);
+		GCConfig gcconfig = new GCConfig(API_URL, API_USERNAME, API_PASSWORD, API_CONNECTOR_KEY, API_USER_AGENT);
 
 		// ** will send a sample file for translation - comment out line bellow
 		// to just retrieve
+		System.out.println("Login");
+		GCExchange gcexchange = new GCExchange(gcconfig);
+		System.out.println("Getting connector list");
+		System.out.println(gcexchange.getConnectors());
+		
 		sendFilesForTranslation(gcconfig);
 
 		// ** Wait for 10 seconds before retrieval (this value can be changed)
@@ -59,7 +55,7 @@ public class SampleCode {
 	private static void sendFilesForTranslation(GCConfig gcconfig) throws Exception {
 		try {
 			GCExchange gcexchange = new GCExchange(gcconfig);
-
+			
 			// ** Set the file properties
 			System.out.println("Uploading a file...");
 			// Path to file
@@ -71,7 +67,7 @@ public class SampleCode {
 			// * Call the method to upload the file - will return
 			// * a unique document identifier, a.k.a. file ID
 			UploadFileRequest fileUploadRequest = new UploadFileRequest(filePath, fileName, fileType);
-			String fileId = gcexchange.uploadFile(fileUploadRequest);
+			String fileId = gcexchange.uploadContent(fileUploadRequest);
 			System.out.println("File uploaded:\n\tFilename: " + fileName + "\n\tFile Type: " + fileType
 					+ "\n\tFile ID: [" + fileId + "]");
 
@@ -89,10 +85,11 @@ public class SampleCode {
 			String[] fileIDs = { fileId };
 			// * Call the method to submit the job with the data given above
 
-			// **** change class name to SubmissionRequest and update methods and attributes accordingly
-			JobSubmitFilesRequest jobSubmitFileRequest = new JobSubmitFilesRequest(jobName, dueDate, sourceLocale,
-					targetLocales, fileIDs); 
-			long jobTicket = gcexchange.submitFiles(jobSubmitFileRequest);
+			// **** change class name to SubmissionRequest and update methods and attributes accordingly		
+			
+			SubmissionSubmitRequest jobSubmitFileRequest = new SubmissionSubmitRequest (jobName, dueDate, sourceLocale,
+					Arrays.asList(targetLocales), Arrays.asList(fileIDs)); 
+			long jobTicket = gcexchange.submitSubmission(jobSubmitFileRequest);
 			
 			System.out.println("Job Created: \n\tJob Name: " + jobName + "\n\tJob ticket: [" + jobTicket + "]");
 		} catch (Exception e) {
@@ -104,24 +101,28 @@ public class SampleCode {
 		GCExchange gcexchange = new GCExchange(gcconfig);
 		System.out.println("\nRetrieving completed files...");
 
+		TaskListRequest tasks = new TaskListRequest();
+		 
+		String[] status = {TaskStatus.Completed.toString()};
+		tasks.setTaskStatuses(status) ;
 		// ** Get a list of available tasks
-		TaskListResponse taskListObj = gcexchange.taskList();
-		List<GCTask> taskList = taskListObj.getTasksList();
+		TasksResponseData taskListObj = gcexchange.getTasksList(tasks);
+		List<GCTask> taskList = taskListObj.getTasks();
 		for (GCTask task : taskList) {
 			String taskName = task.getName();
 			String taskStatus = task.getStatus();
-			Long jobId = task.getJobId();
+			Long subId = task.getSubmissionId();
 			Long taskId = task.getTaskId();
 			Locale taskLocale = task.getTargetLocale();
 
 			// ** If the task is complete, download it
 			if (taskStatus.equals("Completed")) {
 				System.out.println("Task [" + taskId + "] is READY: " + "\n\tStatus: " + taskStatus
-						+ "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + jobId + "]");
-				TaskRequest taskRequest = new TaskRequest(taskId);
+						+ "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + subId + "]");
+				//TaskRequest taskRequest = new TaskRequest(taskId);
 				System.out.println("Downloading task...");
 				try {
-					InputStream inputStream = gcexchange.taskDownload(taskRequest);
+					InputStream inputStream = gcexchange.downloadTask(taskId);
 					File folder = new File("resources\\translated");
 					String fileName = folder + "/" + taskLocale.getLocale() + "_" +  taskId + "_" + taskName;
 					File translatedFile = new File(fileName);
@@ -148,13 +149,13 @@ public class SampleCode {
 			// ** Print the delivered ones
 			if (taskStatus.equals("Delivered")){
 				System.out.println("\nTask [" + taskId + "] is DELIVERED:\n\tName: " + taskName + "\n\tStatus: "
-						+ taskStatus + "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + jobId + "]");
+						+ taskStatus + "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + subId + "]");
 			}
 			
 			// ** Otherwise, print all non-finished tasks
 			else {
 				System.out.println("\nTask [" + taskId + "] is NOT READY:\n\tName: " + taskName + "\n\tStatus: "
-						+ taskStatus + "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + jobId + "]");
+						+ taskStatus + "\n\tTask Locale: " + taskLocale.getLocale() + "\n\tJob ID: [" + subId + "]");
 			}
 		}
 	}
