@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.translations.globallink</groupId>
+  <artifactId>gcc-restclient-samplecode</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  <name>globallink-connect-restclient-samplecode</name>
+  <description>GlobalLink Connect Cloud java Sample code to test the GCC Java library to connect your system to GlobalLink Connect Cloud REST API.</description>
+  <url>http://www.translations.com/globallink/products/globallink_connect.html</url>
+    <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+        </licenses>
+          <developers></developers>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <scm>
+    <connection>scm:git:git://github.com/translations-com/globallink-connect-cloud-sample-java.git</connection>
+    <developerConnection>scm:git:git://github.com/translations-com/globallink-connect-cloud-sample-java.git</developerConnection>
+    <url>https://github.com/translations-com/globallink-connect-cloud-sample-java</url>
+  </scm>
+  
+  <dependencies>
+	<dependency>
+	    <groupId>com.translations.globallink</groupId>
+	    <artifactId>gcc-restclient</artifactId>
+	    <version>2.0.0</version>
+	</dependency>
+  </dependencies>
+  
+  <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<_nouses>true</_nouses>
+						<Bundle-Version>${version}-${maven.build.timestamp}</Bundle-Version>
+						<Bundle-Vendor>TRANSLATIONS</Bundle-Vendor>
+						<Bundle-ClassPath>.</Bundle-ClassPath>
+						<Bundle-Localization>plugin</Bundle-Localization>
+						<Bundle-Name>GCC Rest Services Sample code</Bundle-Name>
+						<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+						<Bundle-SymbolicName>com.translations.globallink.restclient.sample</Bundle-SymbolicName>
+						<Eclipse-LazyStart>false</Eclipse-LazyStart>
+						<Import-Package>*</Import-Package>
+						<Export-Package>com.translations.globallink.sample</Export-Package>
+					</instructions>
+				</configuration>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>	
+			</plugins>
+			</build>
+
+</project>

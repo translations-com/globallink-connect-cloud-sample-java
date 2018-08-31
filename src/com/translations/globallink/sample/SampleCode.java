@@ -1,3 +1,4 @@
+package com.translations.globallink.sample;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -19,7 +20,8 @@ import org.gs4tr.gcc.restclient.request.UploadFileRequest;
 
 public class SampleCode {
 	
-	private static String API_URL = "domain/api/v2";
+	//Set your connection data here
+	private static String API_URL = "**domain**/api/v2";
 	private static String API_USERNAME = "username";
 	private static String API_PASSWORD = "password";
 	private static String API_CONNECTOR_KEY = "connector-key";
@@ -74,7 +76,7 @@ public class SampleCode {
 			// ** Set your job details
 			System.out.println("Submitting the file...");
 			// Job name (a descriptive name for your job)
-			String jobName = "Test Java 001";
+			String submissionName = "Test Java 001";
 			// Due Date (when we would like the job completed):
 			String dueDateString = "31/12/2025 21:00";
 			Date dueDate = new SimpleDateFormat("dd/MM/yyyy hh:mm").parse(dueDateString);
@@ -87,11 +89,11 @@ public class SampleCode {
 
 			// **** change class name to SubmissionRequest and update methods and attributes accordingly		
 			
-			SubmissionSubmitRequest jobSubmitFileRequest = new SubmissionSubmitRequest (jobName, dueDate, sourceLocale,
+			SubmissionSubmitRequest submissionSubmitRequest = new SubmissionSubmitRequest (submissionName, dueDate, sourceLocale,
 					Arrays.asList(targetLocales), Arrays.asList(fileIDs)); 
-			long jobTicket = gcexchange.submitSubmission(jobSubmitFileRequest);
+			long jobTicket = gcexchange.submitSubmission(submissionSubmitRequest);
 			
-			System.out.println("Job Created: \n\tJob Name: " + jobName + "\n\tJob ticket: [" + jobTicket + "]");
+			System.out.println("Job Created: \n\tJob Name: " + submissionName + "\n\tJob ticket: [" + jobTicket + "]");
 		} catch (Exception e) {
 			System.out.println("Problems detected: " + e);
 		}
